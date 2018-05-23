@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">FunTime</string>
     <string name="main_btn_refresh_label">Refresh</string>
+    <string name="main_error_message">Error</string>
+
+    <string name="trailer_error_message">Error</string>
 </resources>

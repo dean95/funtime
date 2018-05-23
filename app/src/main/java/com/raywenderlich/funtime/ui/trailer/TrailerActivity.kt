@@ -1,8 +1,19 @@
 package com.raywenderlich.funtime.ui.trailer
 
+import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
+import android.widget.Toast
+import com.google.android.exoplayer2.DefaultLoadControl
+import com.google.android.exoplayer2.DefaultRenderersFactory
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.ExoPlayerFactory
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
+import com.google.android.exoplayer2.source.ExtractorMediaSource
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.google.android.exoplayer2.ui.PlayerView
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.util.Util
 import com.raywenderlich.funtime.R
 import com.raywenderlich.funtime.data.network.MovieService
 import com.raywenderlich.funtime.data.network.model.ApiTrailer
@@ -17,8 +28,11 @@ class TrailerActivity : AppCompatActivity() {
 
         //TODO Just for testing
         const val TRAILER_URL =
-                "https://dlza6g8e6iucb.cloudfront.net/0342-005011/005011_24.mp4?c=222333&max_bitrate=600000&sub=not-set&ser=635992566310000000&Expires=1527102639&Signature=FkpzVAAuuF63mQa03kVyJrY64sB5ARfcu5DuAPpS7FvC1PWj-zIPX1l92MODZORCOIKBdmu8GZidE487wZnORNQY9JErNddB24Gx6WfeZibPrEYnPDZkE87w7KmdH7OIAhT1FrNU~uvlu-hh4Nct3afgLd7ARdObp2Ch5gdy6AVEWDHFpuhrmOW4pNjb9HKVEHmpC4WbZRi4TPJmX1QdEd6Qzk1XM44lI4gvOYn8woWYkrZhMESKepE2203f0rUQOBW1gquVeVofBDwfYB6T-MMum4gLgl2xBGIIbKMb1iBI3KFALvYuuc7ynXDINYRPkox2LpTul3vVgfOI2VV8VQ__&Key-Pair-Id=APKAIUDDGLY3RASDQSZQ"
+                "https://video.internetvideoarchive.net/video.mp4?cmd=6&fmt=4&customerid=222333&publishedid=2&rnd=29&e=1534881241&maxrate=600000&h=805c93e76f9b06e10a0ab990e3dd6b4d"
     }
+
+    private lateinit var trailerView: PlayerView
+    private lateinit var exoPlayer: ExoPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,7 +40,16 @@ class TrailerActivity : AppCompatActivity() {
 
         val id = intent.getIntExtra(MOVIE_ID_EXTRA, ERROR_ID)
 
+        trailerView = findViewById(R.id.ep_trailer_view)
+
+        //TODO Don't send actual request yet.
 //        getTrailer(id)
+        initializePlayer()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        releasePlayer()
     }
 
     private fun getTrailer(movieId: Int) {
@@ -37,11 +60,45 @@ class TrailerActivity : AppCompatActivity() {
                         this::trailerFetchFailed)
     }
 
+    private fun initializePlayer() {
+        //Create an instance of the player
+        val trackSelector = DefaultTrackSelector()
+        val loadControl = DefaultLoadControl()
+        val renderersFactory = DefaultRenderersFactory(this)
+
+        exoPlayer = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector, loadControl)
+
+        trailerView.player = exoPlayer
+
+        //Prepare media source
+        val userAgent = Util.getUserAgent(this, getString(R.string.app_name))
+        val mediaSource = ExtractorMediaSource.Factory(DefaultDataSourceFactory(this, userAgent))
+                .setExtractorsFactory(DefaultExtractorsFactory())
+                .createMediaSource(Uri.parse(TRAILER_URL))
+        exoPlayer.prepare(mediaSource)
+
+        //Play
+        exoPlayer.playWhenReady = true
+    }
+
+    private fun releasePlayer() {
+        exoPlayer.stop()
+        exoPlayer.release()
+    }
+
     private fun trailerFetchedSuccessfully(trailer: ApiTrailer) {
-        Log.d(TrailerActivity::class.java.simpleName, trailer.url)
+        //Prepare media source
+        val userAgent = Util.getUserAgent(this, getString(R.string.app_name))
+        val mediaSource = ExtractorMediaSource.Factory(DefaultDataSourceFactory(this, userAgent))
+                .setExtractorsFactory(DefaultExtractorsFactory())
+                .createMediaSource(Uri.parse(trailer.url))
+        exoPlayer.prepare(mediaSource)
+
+        //Play
+        exoPlayer.playWhenReady = true
     }
 
     private fun trailerFetchFailed(throwable: Throwable) {
-        throwable.printStackTrace()
+        Toast.makeText(this, getString(R.string.trailer_error_message), Toast.LENGTH_SHORT).show()
     }
 }

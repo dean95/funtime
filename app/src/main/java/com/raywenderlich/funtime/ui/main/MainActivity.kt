@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.Toast
 import com.raywenderlich.funtime.R
 import com.raywenderlich.funtime.data.network.MovieService
+import com.raywenderlich.funtime.data.network.model.ApiMovie
 import com.raywenderlich.funtime.data.network.model.ApiMoviesResult
 import com.raywenderlich.funtime.ui.trailer.TrailerActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -27,10 +28,12 @@ class MainActivity : AppCompatActivity() {
 
         initializeRecyclerView()
 
+        //TODO Don't make actual request for now.
 //        fetchMovies()
     }
 
     fun onRefreshButtonClick(view: View) {
+        //TODO Send new request on refresh click. This is just for testing.
         val intent = Intent(this, TrailerActivity::class.java)
         intent.putExtra(TrailerActivity.MOVIE_ID_EXTRA, 1)
         startActivity(intent)
@@ -49,11 +52,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun moviesFetchFailed(throwable: Throwable) {
-        Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.main_error_message), Toast.LENGTH_SHORT).show()
     }
 
     private fun initializeRecyclerView() {
+        moviesRecyclerView.setHasFixedSize(true)
         moviesRecyclerView.layoutManager = LinearLayoutManager(this)
         moviesRecyclerView.adapter = mainAdapter
+        mainAdapter.onItemClick()
+                .subscribe(this::onMovieClick)
+    }
+
+    private fun onMovieClick(movie: ApiMovie) {
+        val intent = Intent(this, TrailerActivity::class.java)
+        intent.putExtra(TrailerActivity.MOVIE_ID_EXTRA, movie.id)
+        startActivity(intent)
     }
 }

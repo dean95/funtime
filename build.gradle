@@ -27,6 +27,7 @@ allprojects {
         retrofitVersion = "2.4.0"
         rxJavaVersion = "2.1.12"
         rxAndroidVersion = "2.0.2"
+        exoPlayerVersion = "2.8.1"
     }
 }
 
