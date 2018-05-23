@@ -1,13 +1,16 @@
 package com.raywenderlich.funtime.ui.main
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.view.View
 import android.widget.Toast
 import com.raywenderlich.funtime.R
 import com.raywenderlich.funtime.data.network.MovieService
 import com.raywenderlich.funtime.data.network.model.ApiMoviesResult
+import com.raywenderlich.funtime.ui.trailer.TrailerActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
@@ -15,8 +18,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var moviesRecyclerView: RecyclerView
     private val mainAdapter = MainAdapter()
-
-    private val movieService = MovieService()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,11 +27,17 @@ class MainActivity : AppCompatActivity() {
 
         initializeRecyclerView()
 
-        fetchMovies()
+//        fetchMovies()
+    }
+
+    fun onRefreshButtonClick(view: View) {
+        val intent = Intent(this, TrailerActivity::class.java)
+        intent.putExtra(TrailerActivity.MOVIE_ID_EXTRA, 1)
+        startActivity(intent)
     }
 
     private fun fetchMovies() {
-        movieService.getMovies()
+        MovieService.getMovies()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::moviesFetchedSuccessfully,

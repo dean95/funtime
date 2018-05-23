@@ -16,5 +16,6 @@
         android:id="@+id/btn_main_refresh"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:onClick="onRefreshButtonClick"
         android:text="@string/main_btn_refresh_label" />
 </LinearLayout>

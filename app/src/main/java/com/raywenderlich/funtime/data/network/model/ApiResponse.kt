@@ -8,3 +8,5 @@ data class ApiMoviesResult(@SerializedName("TotalCount") val totalCount: Int,
 data class ApiMovie(@SerializedName("Id") val id: Int,
                     @SerializedName("Title") val title: String,
                     @SerializedName("Year") val year: Int)
+
+data class ApiTrailer(@SerializedName("Url") val url: String)
