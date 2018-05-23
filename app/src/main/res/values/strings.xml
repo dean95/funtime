@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">FunTime</string>
+    <string name="main_btn_refresh_label">Refresh</string>
 </resources>
