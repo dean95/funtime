@@ -2,4 +2,5 @@
 <resources>
     <dimen name="main_movie_title_text_size">16sp</dimen>
     <dimen name="main_movie_year_text_size">12sp</dimen>
+    <dimen name="trailer_exo_player_play_pause_button_dimen">72dp</dimen>
 </resources>
