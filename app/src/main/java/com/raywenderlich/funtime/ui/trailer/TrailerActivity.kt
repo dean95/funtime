@@ -49,10 +49,6 @@ class TrailerActivity : AppCompatActivity(), Player.EventListener {
     const val MOVIE_ID_EXTRA = "movie_id_extra"
     const val ERROR_ID = -1
     val TAG = TrailerActivity::class.java.simpleName
-
-    //TODO Just for testing
-    const val TRAILER_URL =
-        "https://video.internetvideoarchive.net/video.mp4?cmd=6&fmt=4&customerid=222333&publishedid=2&rnd=29&e=1534881241&maxrate=600000&h=805c93e76f9b06e10a0ab990e3dd6b4d"
   }
 
   private lateinit var trailerView: PlayerView
@@ -68,8 +64,8 @@ class TrailerActivity : AppCompatActivity(), Player.EventListener {
 
     trailerView = findViewById(R.id.ep_trailer_view)
 
-    //TODO Don't send actual request yet.
-//        getTrailer(id)
+    getTrailer(id)
+
     initializePlayer()
 
     initializeMediaSession()
@@ -162,16 +158,6 @@ class TrailerActivity : AppCompatActivity(), Player.EventListener {
     exoPlayer.addListener(this)
 
     trailerView.player = exoPlayer
-
-    //Prepare media source
-    val userAgent = Util.getUserAgent(this, getString(R.string.app_name))
-    val mediaSource = ExtractorMediaSource.Factory(DefaultDataSourceFactory(this, userAgent))
-        .setExtractorsFactory(DefaultExtractorsFactory())
-        .createMediaSource(Uri.parse(TRAILER_URL))
-    exoPlayer.prepare(mediaSource)
-
-    //Play
-    exoPlayer.playWhenReady = true
   }
 
   private fun releasePlayer() {

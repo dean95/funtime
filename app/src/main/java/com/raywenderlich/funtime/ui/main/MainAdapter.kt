@@ -42,7 +42,7 @@ class MainAdapter : RecyclerView.Adapter<MainAdapter.MovieViewHolder>() {
   private var movies: List<ApiMovie> = ArrayList()
 
   companion object {
-    val CLICK_THROTTLE_WINDOW_MILLIS = 300L;
+    const val CLICK_THROTTLE_WINDOW_MILLIS = 300L
   }
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
@@ -62,9 +62,11 @@ class MainAdapter : RecyclerView.Adapter<MainAdapter.MovieViewHolder>() {
     notifyDataSetChanged()
   }
 
-  fun onItemClick() = onMovieClickSubject.throttleFirst(CLICK_THROTTLE_WINDOW_MILLIS, TimeUnit.SECONDS)
+  fun onItemClick() = onMovieClickSubject
+      .throttleFirst(CLICK_THROTTLE_WINDOW_MILLIS, TimeUnit.SECONDS)
 
-  class MovieViewHolder(val view: View, val clickSubject: Subject<ApiMovie>) : RecyclerView.ViewHolder(view) {
+  class MovieViewHolder(val view: View,
+                        private val clickSubject: Subject<ApiMovie>) : RecyclerView.ViewHolder(view) {
 
     private lateinit var movie: ApiMovie
 
@@ -73,9 +75,10 @@ class MainAdapter : RecyclerView.Adapter<MainAdapter.MovieViewHolder>() {
       with(movie) {
         itemView.tv_main_movie_title.text = title
         itemView.tv_main_movie_year.text = year.toString()
+        itemView.main_movie_item_container.setOnClickListener { onMovieClick() }
       }
     }
 
-    fun onMovieClick() = clickSubject.onNext(movie)
+    private fun onMovieClick() = clickSubject.onNext(movie)
   }
 }

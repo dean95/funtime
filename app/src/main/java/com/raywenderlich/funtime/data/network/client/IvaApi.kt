@@ -31,12 +31,16 @@ import retrofit2.http.Path
 
 interface IvaApi {
 
+  companion object {
+    private const val API_KEY = "f3ad3d212b344ec188a08e3d1a527ab0"
+  }
+
   @Headers("Accept: application/json")
-  @GET("Movies/All?Take=10&subscription-Key=f3ad3d212b344ec188a08e3d1a527ab0")
+  @GET("Movies/All?Take=10&subscription-Key=$API_KEY")
   fun getMovies(): Single<ApiMoviesResult>
 
   @Headers("Accept: application/json")
-  @GET("Videos/GetVideo/{movieId}?Format=mp4&Expires=2018-08-21T19%3A54%3A01.304Z&subscription-Key=f3ad3d212b344ec188a08e3d1a527ab0")
+  @GET("Videos/GetVideo/{movieId}?Format=mp4&Expires=2018-08-21T19%3A54%3A01.304Z&subscription-Key=$API_KEY")
   fun getTrailer(@Path("movieId")
                  movieId: Int): Single<ApiTrailer>
 }

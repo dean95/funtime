@@ -1,18 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_movie_item_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="@dimen/main_movie_item_padding">
 
     <TextView
         android:id="@+id/tv_main_movie_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/main_movie_title_text_size" />
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/main_movie_title_text_size"
+        tools:text="Title" />
 
     <TextView
         android:id="@+id/tv_main_movie_year"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/main_movie_year_text_size" />
+        android:textSize="@dimen/main_movie_year_text_size"
+        tools:text="2011" />
 </LinearLayout>

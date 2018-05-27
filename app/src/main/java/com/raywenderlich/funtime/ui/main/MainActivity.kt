@@ -50,15 +50,11 @@ class MainActivity : AppCompatActivity() {
 
     initializeRecyclerView()
 
-    //TODO Don't make actual request for now.
-//        fetchMovies()
+    fetchMovies()
   }
 
   fun onRefreshButtonClick(view: View) {
-    //TODO Send new request on refresh click. This is just for testing.
-    val intent = Intent(this, TrailerActivity::class.java)
-    intent.putExtra(TrailerActivity.MOVIE_ID_EXTRA, 1)
-    startActivity(intent)
+    fetchMovies()
   }
 
   private fun fetchMovies() {
