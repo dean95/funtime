@@ -32,7 +32,7 @@ import retrofit2.http.Path
 interface IvaApi {
 
   companion object {
-    private const val API_KEY = "f3ad3d212b344ec188a08e3d1a527ab0"
+    private const val API_KEY = "{insert API KEY here}"
   }
 
   @Headers("Accept: application/json")
