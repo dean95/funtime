@@ -29,20 +29,20 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object MovieService {
 
-    private val api: IvaApi
+  private val api: IvaApi
 
-    const val BASE_URL = "https://ee.iva-api.com/"
+  const val BASE_URL = "https://ee.iva-api.com/"
 
-    init {
-        val retrofit = Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .build()
-        api = retrofit.create(IvaApi::class.java)
-    }
+  init {
+    val retrofit = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .addConverterFactory(GsonConverterFactory.create())
+        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+        .build()
+    api = retrofit.create(IvaApi::class.java)
+  }
 
-    fun getMovies() = api.getMovies()
+  fun getMovies() = api.getMovies()
 
-    fun getTrailer(movieId: Int) = api.getTrailer(movieId)
+  fun getTrailer(movieId: Int) = api.getTrailer(movieId)
 }

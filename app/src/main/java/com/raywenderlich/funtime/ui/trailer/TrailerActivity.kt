@@ -45,174 +45,174 @@ import io.reactivex.schedulers.Schedulers
 
 class TrailerActivity : AppCompatActivity(), Player.EventListener {
 
-    companion object {
-        const val MOVIE_ID_EXTRA = "movie_id_extra"
-        const val ERROR_ID = -1
-        val TAG = TrailerActivity::class.java.simpleName
+  companion object {
+    const val MOVIE_ID_EXTRA = "movie_id_extra"
+    const val ERROR_ID = -1
+    val TAG = TrailerActivity::class.java.simpleName
 
-        //TODO Just for testing
-        const val TRAILER_URL =
-                "https://video.internetvideoarchive.net/video.mp4?cmd=6&fmt=4&customerid=222333&publishedid=2&rnd=29&e=1534881241&maxrate=600000&h=805c93e76f9b06e10a0ab990e3dd6b4d"
-    }
+    //TODO Just for testing
+    const val TRAILER_URL =
+        "https://video.internetvideoarchive.net/video.mp4?cmd=6&fmt=4&customerid=222333&publishedid=2&rnd=29&e=1534881241&maxrate=600000&h=805c93e76f9b06e10a0ab990e3dd6b4d"
+  }
 
-    private lateinit var trailerView: PlayerView
-    private lateinit var exoPlayer: ExoPlayer
-    private lateinit var mediaSession: MediaSessionCompat
-    private lateinit var stateBuilder: PlaybackStateCompat.Builder
+  private lateinit var trailerView: PlayerView
+  private lateinit var exoPlayer: ExoPlayer
+  private lateinit var mediaSession: MediaSessionCompat
+  private lateinit var stateBuilder: PlaybackStateCompat.Builder
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_trailer)
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    setContentView(R.layout.activity_trailer)
 
-        val id = intent.getIntExtra(MOVIE_ID_EXTRA, ERROR_ID)
+    val id = intent.getIntExtra(MOVIE_ID_EXTRA, ERROR_ID)
 
-        trailerView = findViewById(R.id.ep_trailer_view)
+    trailerView = findViewById(R.id.ep_trailer_view)
 
-        //TODO Don't send actual request yet.
+    //TODO Don't send actual request yet.
 //        getTrailer(id)
-        initializePlayer()
+    initializePlayer()
 
-        initializeMediaSession()
+    initializeMediaSession()
+  }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    releasePlayer()
+    mediaSession.isActive = false
+  }
+
+  override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
+  }
+
+  override fun onSeekProcessed() {
+  }
+
+  override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
+  }
+
+  override fun onPlayerError(error: ExoPlaybackException?) {
+  }
+
+  override fun onLoadingChanged(isLoading: Boolean) {
+  }
+
+  override fun onPositionDiscontinuity(reason: Int) {
+  }
+
+  override fun onRepeatModeChanged(repeatMode: Int) {
+  }
+
+  override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
+  }
+
+  override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
+  }
+
+  override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+    if ((playbackState == Player.STATE_READY) && playWhenReady) {
+      stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING,
+          exoPlayer.currentPosition, 1f)
+    } else if ((playbackState == Player.STATE_READY)) {
+      stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED,
+          exoPlayer.currentPosition, 1f)
     }
+  }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        releasePlayer()
-        mediaSession.isActive = false
-    }
+  private fun getTrailer(movieId: Int) {
+    MovieService.getTrailer(movieId)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(this::trailerFetchedSuccessfully,
+            this::trailerFetchFailed)
+  }
 
-    override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
-    }
+  private fun initializeMediaSession() {
+    mediaSession = MediaSessionCompat(this, TAG)
 
-    override fun onSeekProcessed() {
-    }
+    mediaSession.setFlags(
+        MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or
+            MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
+    )
 
-    override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
-    }
+    mediaSession.setMediaButtonReceiver(null)
 
-    override fun onPlayerError(error: ExoPlaybackException?) {
-    }
-
-    override fun onLoadingChanged(isLoading: Boolean) {
-    }
-
-    override fun onPositionDiscontinuity(reason: Int) {
-    }
-
-    override fun onRepeatModeChanged(repeatMode: Int) {
-    }
-
-    override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-    }
-
-    override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
-    }
-
-    override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-        if ((playbackState == Player.STATE_READY) && playWhenReady) {
-            stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING,
-                    exoPlayer.currentPosition, 1f)
-        } else if ((playbackState == Player.STATE_READY)) {
-            stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED,
-                    exoPlayer.currentPosition, 1f)
-        }
-    }
-
-    private fun getTrailer(movieId: Int) {
-        MovieService.getTrailer(movieId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::trailerFetchedSuccessfully,
-                        this::trailerFetchFailed)
-    }
-
-    private fun initializeMediaSession() {
-        mediaSession = MediaSessionCompat(this, TAG)
-
-        mediaSession.setFlags(
-                MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or
-                        MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
+    stateBuilder = PlaybackStateCompat.Builder()
+        .setActions(
+            PlaybackStateCompat.ACTION_PLAY or
+                PlaybackStateCompat.ACTION_PAUSE or
+                PlaybackStateCompat.ACTION_PLAY_PAUSE or
+                PlaybackStateCompat.ACTION_FAST_FORWARD or
+                PlaybackStateCompat.ACTION_REWIND
         )
 
-        mediaSession.setMediaButtonReceiver(null)
+    mediaSession.setPlaybackState(stateBuilder.build())
 
-        stateBuilder = PlaybackStateCompat.Builder()
-                .setActions(
-                        PlaybackStateCompat.ACTION_PLAY or
-                                PlaybackStateCompat.ACTION_PAUSE or
-                                PlaybackStateCompat.ACTION_PLAY_PAUSE or
-                                PlaybackStateCompat.ACTION_FAST_FORWARD or
-                                PlaybackStateCompat.ACTION_REWIND
-                )
+    mediaSession.setCallback(SessionCallback())
 
-        mediaSession.setPlaybackState(stateBuilder.build())
+    mediaSession.isActive = true
+  }
 
-        mediaSession.setCallback(SessionCallback())
+  private fun initializePlayer() {
+    //Create an instance of the player
+    val trackSelector = DefaultTrackSelector()
+    val loadControl = DefaultLoadControl()
+    val renderersFactory = DefaultRenderersFactory(this)
 
-        mediaSession.isActive = true
+    exoPlayer = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector, loadControl)
+    exoPlayer.addListener(this)
+
+    trailerView.player = exoPlayer
+
+    //Prepare media source
+    val userAgent = Util.getUserAgent(this, getString(R.string.app_name))
+    val mediaSource = ExtractorMediaSource.Factory(DefaultDataSourceFactory(this, userAgent))
+        .setExtractorsFactory(DefaultExtractorsFactory())
+        .createMediaSource(Uri.parse(TRAILER_URL))
+    exoPlayer.prepare(mediaSource)
+
+    //Play
+    exoPlayer.playWhenReady = true
+  }
+
+  private fun releasePlayer() {
+    exoPlayer.stop()
+    exoPlayer.release()
+  }
+
+  private fun trailerFetchedSuccessfully(trailer: ApiTrailer) {
+    //Prepare media source
+    val userAgent = Util.getUserAgent(this, getString(R.string.app_name))
+    val mediaSource = ExtractorMediaSource.Factory(DefaultDataSourceFactory(this, userAgent))
+        .setExtractorsFactory(DefaultExtractorsFactory())
+        .createMediaSource(Uri.parse(trailer.url))
+    exoPlayer.prepare(mediaSource)
+
+    //Play
+    exoPlayer.playWhenReady = true
+  }
+
+  private fun trailerFetchFailed(throwable: Throwable) {
+    Toast.makeText(this, getString(R.string.trailer_error_message), Toast.LENGTH_SHORT).show()
+  }
+
+  private inner class SessionCallback : MediaSessionCompat.Callback() {
+
+    private val SEEK_WINDOW_MILLIS = 10000
+
+    override fun onPlay() {
+      exoPlayer.playWhenReady = true
     }
 
-    private fun initializePlayer() {
-        //Create an instance of the player
-        val trackSelector = DefaultTrackSelector()
-        val loadControl = DefaultLoadControl()
-        val renderersFactory = DefaultRenderersFactory(this)
-
-        exoPlayer = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector, loadControl)
-        exoPlayer.addListener(this)
-
-        trailerView.player = exoPlayer
-
-        //Prepare media source
-        val userAgent = Util.getUserAgent(this, getString(R.string.app_name))
-        val mediaSource = ExtractorMediaSource.Factory(DefaultDataSourceFactory(this, userAgent))
-                .setExtractorsFactory(DefaultExtractorsFactory())
-                .createMediaSource(Uri.parse(TRAILER_URL))
-        exoPlayer.prepare(mediaSource)
-
-        //Play
-        exoPlayer.playWhenReady = true
+    override fun onPause() {
+      exoPlayer.playWhenReady = false
     }
 
-    private fun releasePlayer() {
-        exoPlayer.stop()
-        exoPlayer.release()
+    override fun onRewind() {
+      exoPlayer.seekTo(exoPlayer.currentPosition - SEEK_WINDOW_MILLIS)
     }
 
-    private fun trailerFetchedSuccessfully(trailer: ApiTrailer) {
-        //Prepare media source
-        val userAgent = Util.getUserAgent(this, getString(R.string.app_name))
-        val mediaSource = ExtractorMediaSource.Factory(DefaultDataSourceFactory(this, userAgent))
-                .setExtractorsFactory(DefaultExtractorsFactory())
-                .createMediaSource(Uri.parse(trailer.url))
-        exoPlayer.prepare(mediaSource)
-
-        //Play
-        exoPlayer.playWhenReady = true
+    override fun onFastForward() {
+      exoPlayer.seekTo(exoPlayer.currentPosition + SEEK_WINDOW_MILLIS)
     }
-
-    private fun trailerFetchFailed(throwable: Throwable) {
-        Toast.makeText(this, getString(R.string.trailer_error_message), Toast.LENGTH_SHORT).show()
-    }
-
-    private inner class SessionCallback : MediaSessionCompat.Callback() {
-
-        private val SEEK_WINDOW_MILLIS = 10000
-
-        override fun onPlay() {
-            exoPlayer.playWhenReady = true
-        }
-
-        override fun onPause() {
-            exoPlayer.playWhenReady = false
-        }
-
-        override fun onRewind() {
-            exoPlayer.seekTo(exoPlayer.currentPosition - SEEK_WINDOW_MILLIS)
-        }
-
-        override fun onFastForward() {
-            exoPlayer.seekTo(exoPlayer.currentPosition + SEEK_WINDOW_MILLIS)
-        }
-    }
+  }
 }

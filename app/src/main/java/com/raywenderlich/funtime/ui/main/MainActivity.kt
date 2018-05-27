@@ -39,55 +39,55 @@ import io.reactivex.schedulers.Schedulers
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var moviesRecyclerView: RecyclerView
-    private val mainAdapter = MainAdapter()
+  private lateinit var moviesRecyclerView: RecyclerView
+  private val mainAdapter = MainAdapter()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    setContentView(R.layout.activity_main)
 
-        moviesRecyclerView = findViewById(R.id.rv_main_movies_container)
+    moviesRecyclerView = findViewById(R.id.rv_main_movies_container)
 
-        initializeRecyclerView()
+    initializeRecyclerView()
 
-        //TODO Don't make actual request for now.
+    //TODO Don't make actual request for now.
 //        fetchMovies()
-    }
+  }
 
-    fun onRefreshButtonClick(view: View) {
-        //TODO Send new request on refresh click. This is just for testing.
-        val intent = Intent(this, TrailerActivity::class.java)
-        intent.putExtra(TrailerActivity.MOVIE_ID_EXTRA, 1)
-        startActivity(intent)
-    }
+  fun onRefreshButtonClick(view: View) {
+    //TODO Send new request on refresh click. This is just for testing.
+    val intent = Intent(this, TrailerActivity::class.java)
+    intent.putExtra(TrailerActivity.MOVIE_ID_EXTRA, 1)
+    startActivity(intent)
+  }
 
-    private fun fetchMovies() {
-        MovieService.getMovies()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::moviesFetchedSuccessfully,
-                        this::moviesFetchFailed)
-    }
+  private fun fetchMovies() {
+    MovieService.getMovies()
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(this::moviesFetchedSuccessfully,
+            this::moviesFetchFailed)
+  }
 
-    private fun moviesFetchedSuccessfully(movies: ApiMoviesResult) {
-        mainAdapter.onMoviesUpdate(movies)
-    }
+  private fun moviesFetchedSuccessfully(movies: ApiMoviesResult) {
+    mainAdapter.onMoviesUpdate(movies)
+  }
 
-    private fun moviesFetchFailed(throwable: Throwable) {
-        Toast.makeText(this, getString(R.string.main_error_message), Toast.LENGTH_SHORT).show()
-    }
+  private fun moviesFetchFailed(throwable: Throwable) {
+    Toast.makeText(this, getString(R.string.main_error_message), Toast.LENGTH_SHORT).show()
+  }
 
-    private fun initializeRecyclerView() {
-        moviesRecyclerView.setHasFixedSize(true)
-        moviesRecyclerView.layoutManager = LinearLayoutManager(this)
-        moviesRecyclerView.adapter = mainAdapter
-        mainAdapter.onItemClick()
-                .subscribe(this::onMovieClick)
-    }
+  private fun initializeRecyclerView() {
+    moviesRecyclerView.setHasFixedSize(true)
+    moviesRecyclerView.layoutManager = LinearLayoutManager(this)
+    moviesRecyclerView.adapter = mainAdapter
+    mainAdapter.onItemClick()
+        .subscribe(this::onMovieClick)
+  }
 
-    private fun onMovieClick(movie: ApiMovie) {
-        val intent = Intent(this, TrailerActivity::class.java)
-        intent.putExtra(TrailerActivity.MOVIE_ID_EXTRA, movie.id)
-        startActivity(intent)
-    }
+  private fun onMovieClick(movie: ApiMovie) {
+    val intent = Intent(this, TrailerActivity::class.java)
+    intent.putExtra(TrailerActivity.MOVIE_ID_EXTRA, movie.id)
+    startActivity(intent)
+  }
 }
