@@ -17,6 +17,7 @@ import com.google.android.exoplayer2.util.Util
 import com.raywenderlich.funtime.R
 import com.raywenderlich.funtime.data.network.MovieService
 import com.raywenderlich.funtime.data.network.model.ApiTrailer
+import com.raywenderlich.funtime.ui.trailer.player.ExoPlayerEventListener
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
@@ -33,6 +34,7 @@ class TrailerActivity : AppCompatActivity() {
 
     private lateinit var trailerView: PlayerView
     private lateinit var exoPlayer: ExoPlayer
+    private lateinit var eventListener: ExoPlayerEventListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,6 +69,8 @@ class TrailerActivity : AppCompatActivity() {
         val renderersFactory = DefaultRenderersFactory(this)
 
         exoPlayer = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector, loadControl)
+        eventListener = ExoPlayerEventListener()
+        exoPlayer.addListener(eventListener)
 
         trailerView.player = exoPlayer
 
