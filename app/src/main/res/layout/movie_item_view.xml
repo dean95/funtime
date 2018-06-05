@@ -7,18 +7,18 @@
     android:orientation="vertical"
     android:padding="@dimen/main_movie_item_padding">
 
-    <TextView
-        android:id="@+id/tv_main_movie_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@android:color/black"
-        android:textSize="@dimen/main_movie_title_text_size"
-        tools:text="Title" />
+  <TextView
+      android:id="@+id/tv_main_movie_title"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:textColor="@android:color/black"
+      android:textSize="@dimen/main_movie_title_text_size"
+      tools:text="Title" />
 
-    <TextView
-        android:id="@+id/tv_main_movie_year"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="@dimen/main_movie_year_text_size"
-        tools:text="2011" />
+  <TextView
+      android:id="@+id/tv_main_movie_year"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:textSize="@dimen/main_movie_year_text_size"
+      tools:text="2011" />
 </LinearLayout>

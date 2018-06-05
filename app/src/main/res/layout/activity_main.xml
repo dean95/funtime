@@ -6,16 +6,16 @@
     android:orientation="vertical"
     tools:context=".ui.main.MainActivity">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_main_movies_container"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+  <android.support.v7.widget.RecyclerView
+      android:id="@+id/rv_main_movies_container"
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:layout_weight="1" />
 
-    <Button
-        android:id="@+id/btn_main_refresh"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="onRefreshButtonClick"
-        android:text="@string/main_btn_refresh_label" />
+  <Button
+      android:id="@+id/btn_main_refresh"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:onClick="onRefreshButtonClick"
+      android:text="@string/main_btn_refresh_label" />
 </LinearLayout>
