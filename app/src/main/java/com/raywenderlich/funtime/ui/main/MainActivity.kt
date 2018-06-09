@@ -47,6 +47,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     init()
   }
 
+  override fun onDestroy() {
+    super.onDestroy()
+    presenter.deactivate()
+  }
+
   override fun moviesFetchedSuccessfully(movies: ApiMoviesResult) {
     mainAdapter.onMoviesUpdate(movies)
   }

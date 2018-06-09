@@ -29,6 +29,8 @@ interface MainContract {
   interface Presenter {
 
     fun fetchMovies()
+
+    fun deactivate()
   }
 
   interface View {

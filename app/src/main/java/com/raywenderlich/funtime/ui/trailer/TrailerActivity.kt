@@ -49,6 +49,7 @@ class TrailerActivity : AppCompatActivity(), TrailerContract.View {
     super.onDestroy()
     presenter.releasePlayer()
     presenter.setMediaSessionState(false)
+    presenter.deactivate()
   }
 
   override fun trailerFetchedSuccessfully(trailer: ApiTrailer) {

@@ -56,4 +56,8 @@ class TrailerPresenter(trailerView: TrailerContract.View) : TrailerContract.Pres
   override fun setMediaSessionState(isActive: Boolean) {
     mediaPlayer.setMediaSessionState(isActive)
   }
+
+  override fun deactivate() {
+    disposables.clear()
+  }
 }

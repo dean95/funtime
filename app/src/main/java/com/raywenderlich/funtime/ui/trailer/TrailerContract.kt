@@ -38,6 +38,8 @@ interface TrailerContract {
     fun playTrailer(url: String)
 
     fun setMediaSessionState(isActive: Boolean)
+
+    fun deactivate()
   }
 
   interface View {
