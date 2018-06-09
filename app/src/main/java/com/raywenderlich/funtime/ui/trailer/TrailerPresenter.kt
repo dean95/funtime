@@ -20,27 +20,28 @@
  * THE SOFTWARE.
  */
 
-package com.raywenderlich.funtime.data.network.client
+package com.raywenderlich.funtime.ui.trailer
 
-import com.raywenderlich.funtime.data.network.model.ApiMoviesResult
-import com.raywenderlich.funtime.data.network.model.ApiTrailer
-import io.reactivex.Single
-import retrofit2.http.GET
-import retrofit2.http.Headers
-import retrofit2.http.Path
+import com.raywenderlich.funtime.data.network.MovieService
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
+import java.lang.ref.WeakReference
 
-interface IvaApi {
+class TrailerPresenter(trailerView: TrailerContract.View) : TrailerContract.Presenter {
 
-  companion object {
-    private const val API_KEY = "insert-api-key-here"
+  private val view = WeakReference(trailerView)
+  private val disposables = CompositeDisposable()
+
+  override fun getTrailer(id: Int) {
+    disposables.add(MovieService.getTrailer(id)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe({ view.get()?.trailerFetchedSuccessfully(it) },
+            { view.get()?.trailerFetchFailed(it) }))
   }
 
-  @Headers("Accept: application/json")
-  @GET("Movies/All?Take=10&subscription-Key=$API_KEY")
-  fun getMovies(): Single<ApiMoviesResult>
-
-  @Headers("Accept: application/json")
-  @GET("Videos/GetVideo/{movieId}?Format=mp4&Expires=2018-08-21T19%3A54%3A01.304Z&subscription-Key=$API_KEY")
-  fun getTrailer(@Path("movieId")
-                 movieId: Int): Single<ApiTrailer>
+  override fun deactivate() {
+    disposables.clear()
+  }
 }

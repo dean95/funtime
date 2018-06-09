@@ -24,9 +24,11 @@ package com.raywenderlich.funtime.ui.trailer
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.widget.Toast
 import com.raywenderlich.funtime.R
+import com.raywenderlich.funtime.data.network.model.ApiTrailer
 
-class TrailerActivity : AppCompatActivity() {
+class TrailerActivity : AppCompatActivity(), TrailerContract.View {
 
   companion object {
     const val MOVIE_ID_EXTRA = "movie_id_extra"
@@ -34,11 +36,29 @@ class TrailerActivity : AppCompatActivity() {
     val TAG = TrailerActivity::class.java.simpleName
   }
 
+  private lateinit var presenter: TrailerContract.Presenter
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_trailer)
+    init()
+  }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    presenter.deactivate()
+  }
+
+  override fun trailerFetchedSuccessfully(trailer: ApiTrailer) {
+  }
+
+  override fun trailerFetchFailed(throwable: Throwable) {
+    Toast.makeText(this, getString(R.string.trailer_error_message), Toast.LENGTH_SHORT).show()
+  }
+
+  private fun init() {
+    presenter = TrailerPresenter(this)
 
     val id = intent.getIntExtra(MOVIE_ID_EXTRA, ERROR_ID)
-
   }
 }

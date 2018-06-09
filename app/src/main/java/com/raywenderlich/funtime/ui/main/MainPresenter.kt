@@ -24,12 +24,14 @@ package com.raywenderlich.funtime.ui.main
 
 import com.raywenderlich.funtime.data.network.MovieService
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.lang.ref.WeakReference
 
 class MainPresenter(view: MainContract.View) : MainContract.Presenter {
 
   private val view = WeakReference<MainContract.View>(view)
+  private val disposables = CompositeDisposable()
 
   override fun fetchMovies() {
     MovieService.getMovies()
@@ -37,5 +39,9 @@ class MainPresenter(view: MainContract.View) : MainContract.Presenter {
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe({ view.get()?.moviesFetchedSuccessfully(it) },
             { view.get()?.moviesFetchFailed(it) })
+  }
+
+  override fun deactivate() {
+    disposables.clear()
   }
 }
