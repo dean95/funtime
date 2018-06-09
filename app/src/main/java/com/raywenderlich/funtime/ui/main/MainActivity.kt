@@ -47,6 +47,14 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     init()
   }
 
+  override fun moviesFetchedSuccessfully(movies: ApiMoviesResult) {
+    mainAdapter.onMoviesUpdate(movies)
+  }
+
+  override fun moviesFetchFailed(throwable: Throwable) {
+    Toast.makeText(this, getString(R.string.main_error_message), Toast.LENGTH_SHORT).show()
+  }
+
   fun onRefreshButtonClick(view: View) {
     presenter.fetchMovies()
   }
@@ -58,14 +66,6 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     initializeRecyclerView()
 
     presenter.fetchMovies()
-  }
-
-  override fun moviesFetchedSuccessfully(movies: ApiMoviesResult) {
-    mainAdapter.onMoviesUpdate(movies)
-  }
-
-  override fun moviesFetchFailed(throwable: Throwable) {
-    Toast.makeText(this, getString(R.string.main_error_message), Toast.LENGTH_SHORT).show()
   }
 
   private fun initializeRecyclerView() {

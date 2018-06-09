@@ -51,6 +51,14 @@ class TrailerActivity : AppCompatActivity(), TrailerContract.View {
     presenter.setMediaSessionState(false)
   }
 
+  override fun trailerFetchedSuccessfully(trailer: ApiTrailer) {
+    presenter.playTrailer(trailer.url)
+  }
+
+  override fun trailerFetchFailed(throwable: Throwable) {
+    Toast.makeText(this, getString(R.string.trailer_error_message), Toast.LENGTH_SHORT).show()
+  }
+
   private fun init() {
     trailerView = findViewById(R.id.ep_trailer_view)
     presenter = TrailerPresenter(this)
@@ -63,13 +71,5 @@ class TrailerActivity : AppCompatActivity(), TrailerContract.View {
 
   private fun initializePlayer() {
     trailerView.player = presenter.getPlayer().getPlayerImpl(this)
-  }
-
-  override fun trailerFetchedSuccessfully(trailer: ApiTrailer) {
-    presenter.playTrailer(trailer.url)
-  }
-
-  override fun trailerFetchFailed(throwable: Throwable) {
-    Toast.makeText(this, getString(R.string.trailer_error_message), Toast.LENGTH_SHORT).show()
   }
 }
