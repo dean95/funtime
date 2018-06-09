@@ -38,12 +38,9 @@ import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.raywenderlich.funtime.R
-import com.raywenderlich.funtime.data.network.MovieService
 import com.raywenderlich.funtime.data.network.model.ApiTrailer
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 
-class TrailerActivity : AppCompatActivity(), Player.EventListener {
+class TrailerActivity : AppCompatActivity(), TrailerContract.View, Player.EventListener {
 
   companion object {
     const val MOVIE_ID_EXTRA = "movie_id_extra"
@@ -55,20 +52,13 @@ class TrailerActivity : AppCompatActivity(), Player.EventListener {
   private lateinit var exoPlayer: ExoPlayer
   private lateinit var mediaSession: MediaSessionCompat
   private lateinit var stateBuilder: PlaybackStateCompat.Builder
+  private lateinit var presenter: TrailerContract.Presenter
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_trailer)
 
-    val id = intent.getIntExtra(MOVIE_ID_EXTRA, ERROR_ID)
-
-    trailerView = findViewById(R.id.ep_trailer_view)
-
-    getTrailer(id)
-
-    initializePlayer()
-
-    initializeMediaSession()
+    init()
   }
 
   override fun onDestroy() {
@@ -114,12 +104,15 @@ class TrailerActivity : AppCompatActivity(), Player.EventListener {
     }
   }
 
-  private fun getTrailer(movieId: Int) {
-    MovieService.getTrailer(movieId)
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(this::trailerFetchedSuccessfully,
-            this::trailerFetchFailed)
+  private fun init() {
+    trailerView = findViewById(R.id.ep_trailer_view)
+    presenter = TrailerPresenter(this)
+
+    val id = intent.getIntExtra(MOVIE_ID_EXTRA, ERROR_ID)
+
+    presenter.getTrailer(id)
+    initializePlayer()
+    initializeMediaSession()
   }
 
   private fun initializeMediaSession() {
@@ -165,19 +158,17 @@ class TrailerActivity : AppCompatActivity(), Player.EventListener {
     exoPlayer.release()
   }
 
-  private fun trailerFetchedSuccessfully(trailer: ApiTrailer) {
-    //Prepare media source
+  override fun trailerFetchedSuccessfully(trailer: ApiTrailer) {
     val userAgent = Util.getUserAgent(this, getString(R.string.app_name))
     val mediaSource = ExtractorMediaSource.Factory(DefaultDataSourceFactory(this, userAgent))
         .setExtractorsFactory(DefaultExtractorsFactory())
         .createMediaSource(Uri.parse(trailer.url))
     exoPlayer.prepare(mediaSource)
 
-    //Play
     exoPlayer.playWhenReady = true
   }
 
-  private fun trailerFetchFailed(throwable: Throwable) {
+  override fun trailerFetchFailed(throwable: Throwable) {
     Toast.makeText(this, getString(R.string.trailer_error_message), Toast.LENGTH_SHORT).show()
   }
 
