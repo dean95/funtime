@@ -22,6 +22,7 @@
 
 package com.raywenderlich.funtime.ui.trailer
 
+import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
@@ -45,9 +46,22 @@ class TrailerActivity : AppCompatActivity(), TrailerContract.View {
     init()
   }
 
+  override fun onPause() {
+    super.onPause()
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+      presenter.releasePlayer()
+    }
+  }
+
+  override fun onStop() {
+    super.onStop()
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+      presenter.releasePlayer()
+    }
+  }
+
   override fun onDestroy() {
     super.onDestroy()
-    presenter.releasePlayer()
     presenter.setMediaSessionState(false)
     presenter.deactivate()
   }
