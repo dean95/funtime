@@ -22,23 +22,23 @@
 
 package com.raywenderlich.funtime.ui.main
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.View
-import android.widget.Toast
+import android.widget.*
 import com.raywenderlich.funtime.R
-import com.raywenderlich.funtime.data.network.model.ApiMovie
-import com.raywenderlich.funtime.data.network.model.ApiMoviesResult
-import com.raywenderlich.funtime.ui.trailer.TrailerActivity
+import com.raywenderlich.funtime.ui.main.MainPresenter.Companion.REQUEST_TAKE_GALLERY_VIDEO
 
 class MainActivity : AppCompatActivity(), MainContract.View {
 
-  private lateinit var moviesRecyclerView: RecyclerView
+  private lateinit var progressBar: ProgressBar
+  private lateinit var videosList: ListView
+  private lateinit var emptyText: TextView
   private lateinit var presenter: MainContract.Presenter
-  private val mainAdapter = MainAdapter()
+  private lateinit var videosAdapter: ArrayAdapter<String>
+  private val videos = ArrayList<String>()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -52,38 +52,69 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     presenter.deactivate()
   }
 
-  override fun moviesFetchedSuccessfully(movies: ApiMoviesResult) {
-    mainAdapter.onMoviesUpdate(movies)
+  override fun videoUploadSuccessfully(publicUrl: String) {
+    hideLoadingIndicator()
+    videos.add(publicUrl)
+    videosAdapter.notifyDataSetChanged()
   }
 
-  override fun moviesFetchFailed(throwable: Throwable) {
+  override fun videoUploadFailedFailed() {
+    if (videos.size > 0) hideEmptyView() else showEmptyView()
+    hideLoadingIndicator()
     Toast.makeText(this, getString(R.string.main_error_message), Toast.LENGTH_SHORT).show()
   }
 
-  fun onRefreshButtonClick(view: View) {
-    presenter.fetchMovies()
+  override fun videoUploadInProgress() {
+    showLoadingIndicator()
+    hideEmptyView()
+  }
+
+  fun onAddVideoButtonClick(view: View) {
+    presenter.selectVideo()
+  }
+
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    super.onActivityResult(requestCode, resultCode, data)
+
+    if (resultCode == Activity.RESULT_OK) {
+      if (requestCode == REQUEST_TAKE_GALLERY_VIDEO) {
+        val selectedVideoUri = data?.data
+        presenter.uploadVideo(selectedVideoUri!!)
+      }
+    }
   }
 
   private fun init() {
-    moviesRecyclerView = findViewById(R.id.rv_main_movies_container)
+    progressBar = findViewById(R.id.pb_main)
+    videosList = findViewById(R.id.lv_videos)
+    emptyText = findViewById(R.id.tv_empty)
+
     presenter = MainPresenter(this)
 
-    initializeRecyclerView()
-
-    presenter.fetchMovies()
+    videosAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, videos)
+    videosList.adapter = videosAdapter
+    videosList.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+      onVideoItemClick(videosList.getItemAtPosition(position).toString())
+    }
   }
 
-  private fun initializeRecyclerView() {
-    moviesRecyclerView.setHasFixedSize(true)
-    moviesRecyclerView.layoutManager = LinearLayoutManager(this)
-    moviesRecyclerView.adapter = mainAdapter
-    mainAdapter.onItemClick()
-        .subscribe(this::onMovieClick)
+  private fun onVideoItemClick(videoUrl: String) {
+    presenter.showVideoScreen(videoUrl)
   }
 
-  private fun onMovieClick(movie: ApiMovie) {
-    val intent = Intent(this, TrailerActivity::class.java)
-    intent.putExtra(TrailerActivity.MOVIE_ID_EXTRA, movie.id)
-    startActivity(intent)
+  private fun showLoadingIndicator() {
+    progressBar.visibility = View.VISIBLE
+  }
+
+  private fun hideLoadingIndicator() {
+    progressBar.visibility = View.GONE
+  }
+
+  private fun hideEmptyView() {
+    emptyText.visibility = View.GONE
+  }
+
+  private fun showEmptyView() {
+    emptyText.visibility = View.VISIBLE
   }
 }

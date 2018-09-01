@@ -22,21 +22,27 @@
 
 package com.raywenderlich.funtime.ui.main
 
-import com.raywenderlich.funtime.data.network.model.ApiMoviesResult
+import android.net.Uri
 
 interface MainContract {
 
   interface Presenter {
 
-    fun fetchMovies()
+    fun selectVideo()
 
     fun deactivate()
+
+    fun uploadVideo(videoUri: Uri)
+
+    fun showVideoScreen(videoUrl: String)
   }
 
   interface View {
 
-    fun moviesFetchedSuccessfully(movies: ApiMoviesResult)
+    fun videoUploadSuccessfully(publicUrl: String)
 
-    fun moviesFetchFailed(throwable: Throwable)
+    fun videoUploadFailedFailed()
+
+    fun videoUploadInProgress()
   }
 }

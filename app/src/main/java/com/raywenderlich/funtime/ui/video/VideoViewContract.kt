@@ -20,15 +20,26 @@
  * THE SOFTWARE.
  */
 
-package com.raywenderlich.funtime.data.network.model
+package com.raywenderlich.funtime.ui.video
 
-import com.google.gson.annotations.SerializedName
+import com.raywenderlich.funtime.device.player.MediaPlayer
 
-data class ApiMoviesResult(@SerializedName("TotalCount") val totalCount: Int,
-                           @SerializedName("Result") val items: List<ApiMovie>)
+interface VideoViewContract {
 
-data class ApiMovie(@SerializedName("Id") val id: Int,
-                    @SerializedName("Title") val title: String,
-                    @SerializedName("Year") val year: Int)
+  interface Presenter {
 
-data class ApiTrailer(@SerializedName("Url") val url: String)
+    fun getPlayer(): MediaPlayer
+
+    fun releasePlayer()
+
+    fun playVideo(url: String)
+
+    fun setMediaSessionState(isActive: Boolean)
+
+    fun deactivate()
+  }
+
+  interface View {
+
+  }
+}

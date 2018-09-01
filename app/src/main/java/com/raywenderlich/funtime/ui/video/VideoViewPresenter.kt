@@ -20,28 +20,15 @@
  * THE SOFTWARE.
  */
 
-package com.raywenderlich.funtime.ui.trailer
+package com.raywenderlich.funtime.ui.video
 
-import com.raywenderlich.funtime.data.network.MovieService
 import com.raywenderlich.funtime.device.player.MediaPlayerImpl
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import java.lang.ref.WeakReference
 
-class TrailerPresenter(trailerView: TrailerContract.View) : TrailerContract.Presenter {
+class VideoViewPresenter(videoViewView: VideoViewContract.View) : VideoViewContract.Presenter {
 
-  private val view = WeakReference(trailerView)
-  private val disposables = CompositeDisposable()
+  private val view = WeakReference(videoViewView)
   private val mediaPlayer = MediaPlayerImpl()
-
-  override fun getTrailer(id: Int) {
-    disposables.add(MovieService.getTrailer(id)
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe({ view.get()?.trailerFetchedSuccessfully(it) },
-            { view.get()?.trailerFetchFailed(it) }))
-  }
 
   override fun getPlayer() = mediaPlayer
 
@@ -49,7 +36,7 @@ class TrailerPresenter(trailerView: TrailerContract.View) : TrailerContract.Pres
     mediaPlayer.releasePlayer()
   }
 
-  override fun playTrailer(url: String) {
+  override fun playVideo(url: String) {
     mediaPlayer.play(url)
   }
 
@@ -58,6 +45,5 @@ class TrailerPresenter(trailerView: TrailerContract.View) : TrailerContract.Pres
   }
 
   override fun deactivate() {
-    disposables.clear()
   }
 }

@@ -20,29 +20,26 @@
  * THE SOFTWARE.
  */
 
-package com.raywenderlich.funtime.ui.trailer
+package com.raywenderlich.funtime.ui.video
 
 import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.widget.Toast
 import com.google.android.exoplayer2.ui.PlayerView
 import com.raywenderlich.funtime.R
-import com.raywenderlich.funtime.data.network.model.ApiTrailer
 
-class TrailerActivity : AppCompatActivity(), TrailerContract.View {
+class VideoViewActivity : AppCompatActivity(), VideoViewContract.View {
 
   companion object {
-    const val MOVIE_ID_EXTRA = "movie_id_extra"
-    const val ERROR_ID = -1
+    const val VIDEO_URL_EXTRA = "video_url_extra"
   }
 
-  private lateinit var trailerView: PlayerView
-  private lateinit var presenter: TrailerContract.Presenter
+  private lateinit var videoView: PlayerView
+  private lateinit var presenter: VideoViewContract.Presenter
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_trailer)
+    setContentView(R.layout.activity_video_view)
     init()
   }
 
@@ -66,25 +63,17 @@ class TrailerActivity : AppCompatActivity(), TrailerContract.View {
     presenter.deactivate()
   }
 
-  override fun trailerFetchedSuccessfully(trailer: ApiTrailer) {
-    presenter.playTrailer(trailer.url)
-  }
-
-  override fun trailerFetchFailed(throwable: Throwable) {
-    Toast.makeText(this, getString(R.string.trailer_error_message), Toast.LENGTH_SHORT).show()
-  }
-
   private fun init() {
-    trailerView = findViewById(R.id.ep_trailer_view)
-    presenter = TrailerPresenter(this)
+    videoView = findViewById(R.id.ep_video_view)
+    presenter = VideoViewPresenter(this)
 
-    val id = intent.getIntExtra(MOVIE_ID_EXTRA, ERROR_ID)
-
-    presenter.getTrailer(id)
     initializePlayer()
+
+    val videoUrl = intent.getStringExtra(VIDEO_URL_EXTRA)
+    presenter.playVideo(videoUrl)
   }
 
   private fun initializePlayer() {
-    trailerView.player = presenter.getPlayer().getPlayerImpl(this)
+    videoView.player = presenter.getPlayer().getPlayerImpl(this)
   }
 }

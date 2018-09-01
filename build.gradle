@@ -24,10 +24,8 @@ allprojects {
   project.ext {
     supportLibVersion = "27.1.1"
     constraintLayoutVersion = "1.1.0"
-    retrofitVersion = "2.4.0"
-    rxJavaVersion = "2.1.12"
-    rxAndroidVersion = "2.0.2"
     exoPlayerVersion = "2.8.1"
+    cloudinaryVersion = "1.22.0"
   }
 }
 

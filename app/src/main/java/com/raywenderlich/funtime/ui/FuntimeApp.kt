@@ -20,32 +20,15 @@
  * THE SOFTWARE.
  */
 
-package com.raywenderlich.funtime.ui.trailer
+package com.raywenderlich.funtime.ui
 
-import com.raywenderlich.funtime.data.network.model.ApiTrailer
-import com.raywenderlich.funtime.device.player.MediaPlayer
+import android.app.Application
+import com.cloudinary.android.MediaManager
 
-interface TrailerContract {
+class FuntimeApp : Application() {
 
-  interface Presenter {
-
-    fun getTrailer(id: Int)
-
-    fun getPlayer(): MediaPlayer
-
-    fun releasePlayer()
-
-    fun playTrailer(url: String)
-
-    fun setMediaSessionState(isActive: Boolean)
-
-    fun deactivate()
-  }
-
-  interface View {
-
-    fun trailerFetchedSuccessfully(trailer: ApiTrailer)
-
-    fun trailerFetchFailed(throwable: Throwable)
+  override fun onCreate() {
+    super.onCreate()
+    MediaManager.init(this)
   }
 }
