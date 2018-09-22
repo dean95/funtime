@@ -24,63 +24,28 @@ package com.raywenderlich.funtime.ui.main
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
-import com.cloudinary.android.MediaManager
-import com.cloudinary.android.callback.ErrorInfo
-import com.cloudinary.android.callback.UploadCallback
-import com.raywenderlich.funtime.R
+import com.raywenderlich.funtime.data.network.VideosService
+import com.raywenderlich.funtime.data.network.model.ApiResponse
 import com.raywenderlich.funtime.ui.video.VideoViewActivity
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import java.lang.ref.WeakReference
 
 class MainPresenter(view: MainContract.View) : MainContract.Presenter {
 
-  companion object {
-    const val REQUEST_TAKE_GALLERY_VIDEO = 1234
-    const val TYPE_VIDEO = "video/*"
-    const val UPLOAD_PRESET = "ig5ysybo"
-    const val OPTION_NAME = "resource_type"
-    const val OPTION_VALUE = "video"
-    const val KEY_URL = "url"
-  }
-
   private val view = WeakReference<MainContract.View>(view)
+  private val disposables = CompositeDisposable()
 
-  override fun selectVideo() {
-    val intent = Intent()
-    intent.type = TYPE_VIDEO
-    intent.action = Intent.ACTION_GET_CONTENT
-    (view.get() as Activity).startActivityForResult(
-        Intent.createChooser(intent, (view.get() as Activity).getString(R.string.main_select_video_title_text)),
-        REQUEST_TAKE_GALLERY_VIDEO)
-  }
-
-  override fun uploadVideo(videoUri: Uri) {
-    MediaManager.get()
-        .upload(videoUri)
-        .unsigned(UPLOAD_PRESET)
-        .option(OPTION_NAME, OPTION_VALUE)
-        .callback(object : UploadCallback {
-          override fun onSuccess(requestId: String?, resultData: MutableMap<Any?, Any?>?) {
-            val publicUrl = resultData?.get(KEY_URL) as String
-            view.get()?.videoUploadSuccessfully(publicUrl)
-          }
-
-          override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {
-
-          }
-
-          override fun onReschedule(requestId: String?, error: ErrorInfo?) {
-
-          }
-
-          override fun onError(requestId: String?, error: ErrorInfo?) {
-            view.get()?.videoUploadFailedFailed()
-          }
-
-          override fun onStart(requestId: String?) {
-            view.get()?.videoUploadInProgress()
-          }
-        }).dispatch()
+  override fun fetchSampleVideos() {
+    disposables.add(
+        VideosService.fetchVideos()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { apiResponse -> onVideosFetchedSuccessfully(apiResponse) },
+                { throwable -> onVideosFetchError(throwable) }
+            ))
   }
 
   override fun showVideoScreen(videoUrl: String) {
@@ -90,5 +55,14 @@ class MainPresenter(view: MainContract.View) : MainContract.Presenter {
   }
 
   override fun deactivate() {
+    disposables.clear()
+  }
+
+  private fun onVideosFetchedSuccessfully(videoData: ApiResponse?) {
+    view.get()?.renderVideos(videoData?.resources!!)
+  }
+
+  private fun onVideosFetchError(throwable: Throwable) {
+    view.get()?.showErrorMessage()
   }
 }

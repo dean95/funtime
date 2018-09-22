@@ -30,7 +30,11 @@ dependencies {
   implementation 'com.android.support.constraint:constraint-layout:' + project.ext.constraintLayoutVersion
   implementation 'com.android.support:design:' + project.ext.supportLibVersion
   implementation 'com.google.android.exoplayer:exoplayer:' + project.ext.exoPlayerVersion
-  implementation 'com.cloudinary:cloudinary-android:' + project.ext.cloudinaryVersion
+  implementation 'com.squareup.retrofit2:retrofit:' + project.ext.retrofitVersion
+  implementation 'com.squareup.retrofit2:converter-gson:' + project.ext.retrofitVersion
+  implementation 'com.squareup.retrofit2:adapter-rxjava2:' + project.ext.retrofitVersion
+  implementation 'io.reactivex.rxjava2:rxjava:' + project.ext.rxJavaVersion
+  implementation 'io.reactivex.rxjava2:rxandroid:' + project.ext.rxAndroidVersion
   testImplementation 'junit:junit:4.12'
   androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }

@@ -20,25 +20,17 @@
  * THE SOFTWARE.
  */
 
-package com.raywenderlich.funtime.ui.main
+package com.raywenderlich.funtime.data.network.model
 
-import com.raywenderlich.funtime.data.network.model.ApiVideo
+import com.google.gson.annotations.SerializedName
 
-interface MainContract {
+data class ApiResponse(val resources: List<ApiVideo>,
+                       @SerializedName("updated_at") val updatedAt: String)
 
-  interface Presenter {
-
-    fun fetchSampleVideos()
-
-    fun deactivate()
-
-    fun showVideoScreen(videoUrl: String)
-  }
-
-  interface View {
-
-    fun renderVideos(videos: List<ApiVideo>)
-
-    fun showErrorMessage()
-  }
-}
+data class ApiVideo(@SerializedName("public_id") val publicId: String,
+                    val version: Long,
+                    val format: String,
+                    val width: Int,
+                    val height: Int,
+                    val type: String,
+                    @SerializedName("created_at") val createdAt: String)

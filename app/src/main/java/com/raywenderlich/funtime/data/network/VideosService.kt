@@ -20,25 +20,25 @@
  * THE SOFTWARE.
  */
 
-package com.raywenderlich.funtime.ui.main
+package com.raywenderlich.funtime.data.network
 
-import com.raywenderlich.funtime.data.network.model.ApiVideo
+import com.raywenderlich.funtime.data.network.api.CloudinaryApi
+import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.converter.gson.GsonConverterFactory
 
-interface MainContract {
 
-  interface Presenter {
+object VideosService {
 
-    fun fetchSampleVideos()
+  private const val CLOUDINARY_BASE_URL = "https://res.cloudinary.com/"
 
-    fun deactivate()
+  fun fetchVideos() = createCloudinaryVideoService().fetchVideos()
 
-    fun showVideoScreen(videoUrl: String)
-  }
+  private fun createRetrofitInstance() = Retrofit.Builder()
+      .baseUrl(CLOUDINARY_BASE_URL)
+      .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+      .addConverterFactory(GsonConverterFactory.create())
+      .build()
 
-  interface View {
-
-    fun renderVideos(videos: List<ApiVideo>)
-
-    fun showErrorMessage()
-  }
+  private fun createCloudinaryVideoService() = createRetrofitInstance().create(CloudinaryApi::class.java)
 }

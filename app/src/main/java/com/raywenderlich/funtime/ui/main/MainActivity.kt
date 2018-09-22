@@ -22,23 +22,22 @@
 
 package com.raywenderlich.funtime.ui.main
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.*
 import com.raywenderlich.funtime.R
-import com.raywenderlich.funtime.ui.main.MainPresenter.Companion.REQUEST_TAKE_GALLERY_VIDEO
+import com.raywenderlich.funtime.data.network.model.ApiVideo
 
 class MainActivity : AppCompatActivity(), MainContract.View {
 
   private lateinit var progressBar: ProgressBar
-  private lateinit var videosList: ListView
+  private lateinit var videosList: RecyclerView
   private lateinit var emptyText: TextView
   private lateinit var presenter: MainContract.Presenter
-  private lateinit var videosAdapter: ArrayAdapter<String>
-  private val videos = ArrayList<String>()
+  private lateinit var videosAdapter: MainAdapter
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -52,54 +51,42 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     presenter.deactivate()
   }
 
-  override fun videoUploadSuccessfully(publicUrl: String) {
+  override fun renderVideos(videos: List<ApiVideo>) {
     hideLoadingIndicator()
-    videos.add(publicUrl)
-    videosAdapter.notifyDataSetChanged()
-  }
-
-  override fun videoUploadFailedFailed() {
-    if (videos.size > 0) hideEmptyView() else showEmptyView()
-    hideLoadingIndicator()
-    Toast.makeText(this, getString(R.string.main_error_message), Toast.LENGTH_SHORT).show()
-  }
-
-  override fun videoUploadInProgress() {
-    showLoadingIndicator()
     hideEmptyView()
+    videosAdapter.onVideosUpdate(videos)
   }
 
-  fun onAddVideoButtonClick(view: View) {
-    presenter.selectVideo()
-  }
-
-  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-    super.onActivityResult(requestCode, resultCode, data)
-
-    if (resultCode == Activity.RESULT_OK) {
-      if (requestCode == REQUEST_TAKE_GALLERY_VIDEO) {
-        val selectedVideoUri = data?.data
-        presenter.uploadVideo(selectedVideoUri!!)
-      }
-    }
+  override fun showErrorMessage() {
+    hideLoadingIndicator()
+    showEmptyView()
   }
 
   private fun init() {
     progressBar = findViewById(R.id.pb_main)
-    videosList = findViewById(R.id.lv_videos)
+    videosList = findViewById(R.id.rv_videos)
     emptyText = findViewById(R.id.tv_empty)
+
+    initializeRecyclerView()
 
     presenter = MainPresenter(this)
 
-    videosAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, videos)
-    videosList.adapter = videosAdapter
-    videosList.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-      onVideoItemClick(videosList.getItemAtPosition(position).toString())
-    }
+    presenter.fetchSampleVideos()
+    showLoadingIndicator()
+    hideEmptyView()
   }
 
-  private fun onVideoItemClick(videoUrl: String) {
-    presenter.showVideoScreen(videoUrl)
+  private fun initializeRecyclerView() {
+    videosList.layoutManager = LinearLayoutManager(this)
+    videosList.setHasFixedSize(true)
+
+    videosAdapter = MainAdapter()
+    videosAdapter.onItemClick().subscribe(this::onVideoItemClick)
+    videosList.adapter = videosAdapter
+  }
+
+  private fun onVideoItemClick(video: ApiVideo) {
+    presenter.showVideoScreen(createVideoUrl(video))
   }
 
   private fun showLoadingIndicator() {
@@ -117,4 +104,7 @@ class MainActivity : AppCompatActivity(), MainContract.View {
   private fun showEmptyView() {
     emptyText.visibility = View.VISIBLE
   }
+
+  private fun createVideoUrl(video: ApiVideo) =
+      "https://res.cloudinary.com/demo/video/${video.type}/v${video.version}/${video.publicId}.${video.format}"
 }

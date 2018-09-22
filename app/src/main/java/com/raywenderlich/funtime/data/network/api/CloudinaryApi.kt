@@ -20,15 +20,14 @@
  * THE SOFTWARE.
  */
 
-package com.raywenderlich.funtime.ui
+package com.raywenderlich.funtime.data.network.api
 
-import android.app.Application
-import com.cloudinary.android.MediaManager
+import com.raywenderlich.funtime.data.network.model.ApiResponse
+import io.reactivex.Single
+import retrofit2.http.GET
 
-class FuntimeApp : Application() {
+interface CloudinaryApi {
 
-  override fun onCreate() {
-    super.onCreate()
-    MediaManager.init(this)
-  }
+  @GET("demo/video/list/samples.json")
+  fun fetchVideos(): Single<ApiResponse>
 }
